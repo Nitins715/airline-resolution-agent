@@ -265,12 +265,10 @@ class ResolutionEngine:
 
         # Try Hugging Face if configured, but enforce deterministic facts
         system_instruction = (
-            "You are an empathetic, professional airline customer service agent. "
-            "Speak in first-person ('I completely understand...'). "
-            "You must follow the strict airline policy facts provided below. "
-            "Do NOT invent policies, do NOT overcommit, and do NOT offer compensation that is not explicitly stated in the 'Mandatory Policy Points'. "
-            "Clearly present the approved solutions and options to the customer. "
-            "Be clear, reassuring, and concise."
+            "You are a helpful, human-like airline resolution agent. "
+            "Use the provided policy facts to guide the conversation, but maintain a natural, empathetic tone. "
+            "Ask clarifying questions if necessary (like asking for a PNR, name, or membership if missing). "
+            "Never invent compensation beyond what the rules explicitly allow, but present options flexibly and warmly."
         )
 
         # Build deterministic baseline response based on exact scenario logic
@@ -295,7 +293,7 @@ class ResolutionEngine:
                 f"({booking.route_origin} → {booking.route_destination}) is delayed {int(delay_hrs) if delay_hrs.is_integer() else delay_hrs} hours."
             )
         else:
-            parts.append("Hello! Thank you for contacting us. How can I help you today? Please provide your PNR and flight details if you are inquiring about a specific journey.")
+            parts.append("Hello! I am your Airline Resolution Assistant. To assist you properly, could you please provide your Name, Flight Information (or PNR), and your Loyalty Membership Tier?")
 
         # 2. Add approved resolution items
         if 'refund' in policy_result.entitlements:

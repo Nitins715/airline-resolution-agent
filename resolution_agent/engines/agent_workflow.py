@@ -32,8 +32,8 @@ def llm_router_node(state: ResolutionAgentState) -> Dict[str, Any]:
     
     prompt = (
         f"You are an airline customer service assistant. The user said: '{user_message}'\n"
-        f"If the user is asking about a flight, delay, cancellation, refund, rebooking, PNR, or airline policy, you MUST reply with the exact text: USE_RULES\n"
-        f"Otherwise, if it is just a normal greeting or chit-chat, respond directly and politely as the assistant."
+        f"If the user is asking about a specific flight, delay, cancellation, refund, or rebooking, you MUST reply with the exact text: USE_RULES\n"
+        f"Otherwise, if it is a general greeting, respond politely and ask them for their Name, Flight Information (or PNR), and Loyalty Tier so you can assist them."
     )
     
     response = HuggingFaceClient.generate_response(prompt, system_instruction="Classify intent or respond directly.")

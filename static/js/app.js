@@ -171,7 +171,7 @@ function resetChatStream() {
     appendMessageBubble('system', `Connected to Airline Resolution Agent. All policy decisions are strictly governed by company rules.`);
 
     // Agent initial greeting
-    let greeting = `Hello! I am your Airline Resolution Assistant. How can I help you today? If you are inquiring about a specific flight, please provide your PNR (e.g., SK4821X, TR1190B, WL7742) and your request.`;
+    let greeting = `Hello! I am your Airline Resolution Assistant. To help me accurately resolve your case, please provide your Name, Flight Information (or PNR), and your Loyalty Membership tier.`;
     appendMessageBubble('agent', greeting);
 }
 

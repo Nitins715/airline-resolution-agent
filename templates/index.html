@@ -20,80 +20,10 @@
                     <span class="subtext">Deterministic Disruption Engine • LangGraph & AI Grounded</span>
                 </div>
             </div>
-            <div class="header-meta">
-                <div class="date-badge">
-                    <span class="icon">📅</span>
-                    <span>Operational Date: <strong>Wed, 23 Sep 2026</strong></span>
-                </div>
-                <div class="status-indicator">
-                    <span class="pulse-dot"></span>
-                    <span>PolicyEngine: <strong>Strict Authority</strong></span>
-                </div>
-            </div>
         </header>
 
         <!-- Main Workspace -->
         <main class="main-content">
-            <!-- Left Column: Customer Selection & Flight Context -->
-            <section class="panel customer-panel">
-                <div class="panel-header">
-                    <h2>Customer Profiles</h2>
-                    <span class="hint">Select to start session</span>
-                </div>
-
-                <!-- Customer Selection Tabs -->
-                <div class="customer-cards">
-                    <div class="cust-card active" id="card-priya" onclick="selectCustomer('SK4821X')">
-                        <div class="cust-card-top">
-                            <span class="cust-name">Priya Nair</span>
-                            <span class="tier-badge tier-gold">Gold</span>
-                        </div>
-                        <div class="cust-card-meta">
-                            <span>PNR: <strong>SK4821X</strong></span>
-                            <span class="disruption-tag tag-cancelled">Cancelled (SK-204)</span>
-                        </div>
-                    </div>
-
-                    <div class="cust-card" id="card-arvind" onclick="selectCustomer('TR1190B')">
-                        <div class="cust-card-top">
-                            <span class="cust-name">Arvind Kulkarni</span>
-                            <span class="tier-badge tier-silver">Silver</span>
-                        </div>
-                        <div class="cust-card-meta">
-                            <span>PNR: <strong>TR1190B</strong></span>
-                            <span class="disruption-tag tag-delayed">Delayed 4h (SK-118)</span>
-                        </div>
-                    </div>
-
-                    <div class="cust-card" id="card-meher" onclick="selectCustomer('WL7742')">
-                        <div class="cust-card-top">
-                            <span class="cust-name">Meher Kaur</span>
-                            <span class="tier-badge tier-platinum">Platinum</span>
-                        </div>
-                        <div class="cust-card-meta">
-                            <span>PNR: <strong>WL7742</strong></span>
-                            <span class="disruption-tag tag-delayed">Delayed 6h (SK-305)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Customer Details Card -->
-                <div class="active-customer-details" id="customer-details-box">
-                    <!-- Injected dynamically via app.js -->
-                </div>
-
-                <!-- Quick Demo Scenario Prompts -->
-                <div class="demo-actions-box">
-                    <div class="demo-header">
-                        <span>⚡ Quick Scenario Actions</span>
-                        <span class="demo-desc">Real backend requests</span>
-                    </div>
-                    <div class="quick-btn-group" id="quick-action-buttons">
-                        <!-- Injected dynamically based on active customer -->
-                    </div>
-                </div>
-            </section>
-
             <!-- Middle Column: Interactive Chat Interface -->
             <section class="panel chat-panel">
                 <div class="panel-header chat-header">
@@ -174,19 +104,6 @@
                             <strong>Loyalty Policy:</strong> Gold/Platinum get priority rebooking (first access to seats) but no extra cash/upgrade compensation.
                         </li>
                     </ul>
-                </div>
-
-                <!-- Automated Scenarios Verification Trigger -->
-                <div class="scenario-test-card">
-                    <div class="scenario-test-header">
-                        <h3>🧪 Scenario Test Runner</h3>
-                        <button class="btn btn-outline btn-sm" onclick="runAllBackendScenarios()">
-                            <span>Run All 3 Scenarios</span>
-                        </button>
-                    </div>
-                    <div id="scenario-runner-output" class="scenario-runner-output">
-                        <span class="ready-text">Click to verify Priya, Arvind & Meher test runs against the API.</span>
-                    </div>
                 </div>
             </section>
         </main>

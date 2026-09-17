@@ -57,7 +57,7 @@ class PolicyKnowledgeItemSerializer(serializers.ModelSerializer):
 
 class ChatRequestSerializer(serializers.Serializer):
     session_id = serializers.CharField(required=False, default=None, allow_null=True)
-    pnr = serializers.CharField(required=False, default=None, allow_null=True)
+    pnr = serializers.CharField(required=False, default=None, allow_null=True, allow_blank=True)
     message = serializers.CharField(required=True)
 
 

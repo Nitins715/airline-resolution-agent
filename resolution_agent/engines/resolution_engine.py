@@ -31,7 +31,7 @@ class ResolutionEngine:
     ) -> Dict[str, Any]:
         resolutions_created = []
         escalations_created = []
-        pnr_code = booking.pnr if booking else customer.booking_reference
+        pnr_code = booking.pnr if booking else (customer.booking_reference if customer else 'ANON')
 
         # Process Entitlements -> Create Resolutions
         entitlements = policy_result.entitlements
@@ -266,7 +266,10 @@ class ResolutionEngine:
         # Try Hugging Face if configured, but enforce deterministic facts
         system_instruction = (
             "You are an empathetic, professional airline customer service agent. "
-            "Speak in first-person ('I completely understand...'). Follow strict company policy without making exceptions. "
+            "Speak in first-person ('I completely understand...'). "
+            "You must follow the strict airline policy facts provided below. "
+            "Do NOT invent policies, do NOT overcommit, and do NOT offer compensation that is not explicitly stated in the 'Mandatory Policy Points'. "
+            "Clearly present the approved solutions and options to the customer. "
             "Be clear, reassuring, and concise."
         )
 
@@ -292,7 +295,7 @@ class ResolutionEngine:
                 f"({booking.route_origin} → {booking.route_destination}) is delayed {int(delay_hrs) if delay_hrs.is_integer() else delay_hrs} hours."
             )
         else:
-            parts.append("Thank you for contacting us regarding your journey.")
+            parts.append("Hello! Thank you for contacting us. How can I help you today? Please provide your PNR and flight details if you are inquiring about a specific journey.")
 
         # 2. Add approved resolution items
         if 'refund' in policy_result.entitlements:
@@ -355,7 +358,7 @@ class ResolutionEngine:
                 )
 
         # 5. Loyalty priority notice
-        if customer.loyalty_tier in ['GOLD', 'PLATINUM'] and flight_status == 'CANCELLED':
+        if customer and customer.loyalty_tier in ['GOLD', 'PLATINUM'] and flight_status == 'CANCELLED':
             parts.append(
                 f"As a valued {customer.get_loyalty_tier_display()} member, you also receive priority first access to next-available seats if you choose to rebook."
             )
@@ -364,8 +367,10 @@ class ResolutionEngine:
 
         # Optionally enrich with Hugging Face if key is available, but maintain policy integrity
         if HuggingFaceClient.get_token():
+            cust_name = customer.name if customer else "Customer"
+            cust_tier = customer.loyalty_tier if customer else "Standard"
             hf_prompt = (
-                f"Customer: {customer.name} ({customer.loyalty_tier} tier)\n"
+                f"Customer: {cust_name} ({cust_tier} tier)\n"
                 f"User Message: {user_message}\n"
                 f"Mandatory Policy Points To Deliver:\n{baseline_response}\n\n"
                 f"Rephrase politely while preserving all policy facts and decisions exactly."

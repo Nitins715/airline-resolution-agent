@@ -151,7 +151,7 @@ body {
 /* Main Grid Layout */
 .main-content {
     display: grid;
-    grid-template-columns: 360px 1fr 390px;
+    grid-template-columns: 1fr 390px;
     gap: 14px;
     padding: 14px 20px;
     flex: 1;

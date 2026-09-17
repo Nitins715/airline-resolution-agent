@@ -1,0 +1,25 @@
+databases:
+  - name: airlinedb
+    databaseName: airlinedb
+    user: airlinedb_user
+    plan: free
+
+services:
+  - type: web
+    name: airline-resolution-agent
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn airline_core.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: airlinedb
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: HUGGINGFACEHUB_API_TOKEN
+        sync: false
+      - key: HF_MODEL_NAME
+        value: "mistralai/Mistral-7B-Instruct-v0.3"

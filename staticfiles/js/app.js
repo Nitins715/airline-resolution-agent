@@ -91,8 +91,8 @@ const CUSTOMERS = {
     }
 };
 
-let activeCustomerPNR = 'SK4821X';
-let currentSessionId = generateSessionId('SK4821X');
+let activeCustomerPNR = '';
+let currentSessionId = generateSessionId('anon');
 let isSending = false;
 
 function generateSessionId(pnr) {
@@ -101,33 +101,19 @@ function generateSessionId(pnr) {
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
-    selectCustomer('SK4821X');
+    startNewSession();
 });
 
-function selectCustomer(pnr) {
-    if (!CUSTOMERS[pnr]) return;
-    activeCustomerPNR = pnr;
-    currentSessionId = generateSessionId(pnr);
-
-    // Update active card styling
-    document.querySelectorAll('.cust-card').forEach(card => card.classList.remove('active'));
-    const activeCard = document.getElementById(`card-${pnr === 'SK4821X' ? 'priya' : (pnr === 'TR1190B' ? 'arvind' : 'meher')}`);
-    if (activeCard) activeCard.classList.add('active');
-
-    const cust = CUSTOMERS[pnr];
-
+function startNewSession() {
+    activeCustomerPNR = '';
+    currentSessionId = generateSessionId('anon');
+    
     // Update chat header subtitle
-    document.getElementById('chat-subtitle').textContent = `Session active for ${cust.name} (${cust.pnr})`;
-
-    // Render customer info & flights in left panel
-    renderCustomerDetails(cust);
-
-    // Render customer specific quick action buttons
-    renderQuickActions(cust);
-
+    document.getElementById('chat-subtitle').textContent = `How can we help you today?`;
+    
     // Reset chat messages with welcome greeting
-    resetChatStream(cust);
-
+    resetChatStream();
+    
     // Reset resolution panel
     resetResolutionPanel();
 }
@@ -177,28 +163,20 @@ function renderQuickActions(cust) {
     container.innerHTML = html;
 }
 
-function resetChatStream(cust) {
+function resetChatStream() {
     const messagesContainer = document.getElementById('chat-messages');
     messagesContainer.innerHTML = '';
 
     // Initial system notice
-    appendMessageBubble('system', `Connected to Airline Resolution Agent for ${cust.name} (PNR: ${cust.pnr}, ${cust.tier} tier). All policy decisions are strictly governed by company rules.`);
+    appendMessageBubble('system', `Connected to Airline Resolution Agent. All policy decisions are strictly governed by company rules.`);
 
     // Agent initial greeting
-    let greeting = '';
-    if (cust.pnr === 'SK4821X') {
-        greeting = `Hello Priya. I can see that your flight SK-204 (Delhi → Goa) scheduled for today at 18:40 has been cancelled due to operational reasons. I'm here to assist you with free rebooking on the next available flight within 24 hours, or a full refund to your original payment method. How would you like to proceed?`;
-    } else if (cust.pnr === 'TR1190B') {
-        greeting = `Hello Arvind. I apologize for the disruption — your flight SK-118 (Mumbai → Bengaluru) is delayed by 4 hours, with a revised departure of 11:10. How may I assist you with your journey today?`;
-    } else if (cust.pnr === 'WL7742') {
-        greeting = `Hello Meher. As a valued Platinum member, I apologize for the inconvenience — flight SK-305 (Delhi → Hyderabad) is delayed by 6 hours (new departure: 20:00). I am here to assist you with delay compensation and accommodation options under our policy.`;
-    }
-
+    let greeting = `Hello! I am your Airline Resolution Assistant. To help me accurately resolve your case, please provide your Name, Flight Information (or PNR), and your Loyalty Membership tier.`;
     appendMessageBubble('agent', greeting);
 }
 
 function resetCurrentSession() {
-    selectCustomer(activeCustomerPNR);
+    startNewSession();
 }
 
 function resetResolutionPanel() {

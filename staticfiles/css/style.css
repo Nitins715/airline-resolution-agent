@@ -151,11 +151,14 @@ body {
 /* Main Grid Layout */
 .main-content {
     display: grid;
-    grid-template-columns: 360px 1fr 390px;
+    grid-template-columns: 1fr 390px;
     gap: 14px;
     padding: 14px 20px;
     flex: 1;
     overflow: hidden;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .panel {
@@ -797,6 +800,37 @@ textarea#user-input:focus {
 
 .policy-list li strong {
     color: #E5E7EB;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+    
+    .main-content {
+        grid-template-columns: 1fr;
+        overflow-y: visible;
+        padding: 10px;
+    }
+    
+    .app-container {
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .panel {
+        min-height: 600px;
+        height: 80vh; /* Better fit for mobile chat */
+    }
+    
+    .header-brand h1 {
+        font-size: 16px;
+    }
+    
+    .header-brand .subtext {
+        display: none;
+    }
 }
 
 /* Scenario Test Card */

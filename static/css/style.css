@@ -156,6 +156,9 @@ body {
     padding: 14px 20px;
     flex: 1;
     overflow: hidden;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .panel {
@@ -801,9 +804,14 @@ textarea#user-input:focus {
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+    
     .main-content {
         grid-template-columns: 1fr;
-        overflow-y: auto;
+        overflow-y: visible;
+        padding: 10px;
     }
     
     .app-container {
@@ -812,7 +820,8 @@ textarea#user-input:focus {
     }
     
     .panel {
-        min-height: 500px;
+        min-height: 600px;
+        height: 80vh; /* Better fit for mobile chat */
     }
     
     .header-brand h1 {

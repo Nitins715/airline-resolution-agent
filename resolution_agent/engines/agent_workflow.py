@@ -10,6 +10,7 @@ from resolution_agent.models import Customer, Booking, Conversation, Message, Me
 from resolution_agent.engines.intent_detector import IntentDetector
 from resolution_agent.engines.policy_engine import PolicyEngine, PolicyEvaluationResult
 from resolution_agent.engines.resolution_engine import ResolutionEngine
+from resolution_agent.engines.hf_client import HuggingFaceClient
 
 
 class ResolutionAgentState(TypedDict, total=False):
@@ -23,6 +24,37 @@ class ResolutionAgentState(TypedDict, total=False):
     policy_result: Optional[PolicyEvaluationResult]
     execution_result: Optional[Dict[str, Any]]
     final_response: str
+    use_rules: bool
+
+
+def llm_router_node(state: ResolutionAgentState) -> Dict[str, Any]:
+    user_message = state.get('user_message', '')
+    
+    prompt = (
+        f"You are an airline customer service assistant. The user said: '{user_message}'\n"
+        f"If the user is asking about a flight, delay, cancellation, refund, rebooking, PNR, or airline policy, you MUST reply with the exact text: USE_RULES\n"
+        f"Otherwise, if it is just a normal greeting or chit-chat, respond directly and politely as the assistant."
+    )
+    
+    response = HuggingFaceClient.generate_response(prompt, system_instruction="Classify intent or respond directly.")
+    
+    if not response or "USE_RULES" in response.upper():
+        return {'use_rules': True}
+    else:
+        return {
+            'use_rules': False, 
+            'final_response': response,
+            'execution_result': {
+                'conversation_status': 'ACTIVE', 
+                'panel_summary': [{'label': 'Decision', 'value': 'General Chat'}]
+            }
+        }
+
+
+def router_condition(state: ResolutionAgentState) -> str:
+    if state.get('use_rules', True):
+        return "use_rules"
+    return "direct_response"
 
 
 def identify_context_node(state: ResolutionAgentState) -> Dict[str, Any]:
@@ -185,13 +217,24 @@ def resolution_execution_node(state: ResolutionAgentState) -> Dict[str, Any]:
 def build_resolution_graph():
     builder = StateGraph(ResolutionAgentState)
 
+    builder.add_node("llm_router", llm_router_node)
     builder.add_node("identify_context", identify_context_node)
     builder.add_node("detect_intent", detect_intent_node)
     builder.add_node("retrieve_data", retrieve_data_node)
     builder.add_node("policy_evaluation", policy_evaluation_node)
     builder.add_node("resolution_execution", resolution_execution_node)
 
-    builder.add_edge(START, "identify_context")
+    builder.add_edge(START, "llm_router")
+    
+    builder.add_conditional_edges(
+        "llm_router",
+        router_condition,
+        {
+            "direct_response": END,
+            "use_rules": "identify_context"
+        }
+    )
+
     builder.add_edge("identify_context", "detect_intent")
     builder.add_edge("detect_intent", "retrieve_data")
     builder.add_edge("retrieve_data", "policy_evaluation")

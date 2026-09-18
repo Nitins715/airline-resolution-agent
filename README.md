@@ -1,14 +1,16 @@
 # Airline Resolution Assistant
 
+🌐 **Live Application**: [https://airline-resolution-agent-rjx8.onrender.com/](https://airline-resolution-agent-rjx8.onrender.com/)
+
 A customer-facing web application that handles airline flight disruption resolution (cancellations and delays) using an AI-grounded approach.
 
 ## Overview
 This project simulates an airline's automated customer service assistant. It allows customers to inquire about disrupted flights and receive compensation, rebooking, or hotel arrangements. The assistant follows strict deterministic policies while using AI for natural language understanding and generation.
 
 ## AI Architecture
-- **Hugging Face Model**: `mistralai/Mistral-7B-Instruct-v0.3` (or customizable) is used for natural language understanding and empathetic response generation.
-- **LangGraph**: Orchestrates the agent workflow (state graph: context identification → intent detection → data retrieval → policy evaluation → resolution execution).
-- **LangChain**: Used for prompt structuring and LLM integrations.
+- **Hugging Face Model**: `Qwen/Qwen2.5-Coder-3B-Instruct` (or `meta-llama/Llama-3.1-8B-Instruct`) via modern Hugging Face Router API for natural language understanding and empathetic response generation.
+- **LangGraph**: Orchestrates the agent workflow (state graph: guardrails → identity verification → internal dataset queries → policy evaluation → resolution execution).
+- **Authoritative Internal Tools**: Internal customer query tool (`internal_customer_query`) and airline action tools (`rebook_flight`, `initiate_refund`, `issue_meal_voucher`, `issue_lounge_access`, `arrange_hotel`, `escalate_to_human`).
 - **PolicyEngine**: A deterministic, rule-based engine that has the final authority on all compensation limits, rebooking rules, and escalation thresholds. The LLM is strictly prohibited from overriding or hallucinating policy decisions.
 
 ## Tech Stack

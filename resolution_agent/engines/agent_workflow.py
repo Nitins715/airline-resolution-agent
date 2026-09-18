@@ -4,6 +4,7 @@ Orchestrates domain guardrails, identity verification via internal_customer_quer
 policy evaluation, controlled airline action tools, and empathetic grounded customer response delivery.
 """
 
+import uuid
 from typing import TypedDict, Optional, Dict, Any, List
 from langgraph.graph import StateGraph, START, END
 
@@ -451,7 +452,7 @@ def verification_and_resolution_node(state: ResolutionAgentState) -> Dict[str, A
                 status="PROCESSED",
                 amount=booking_info['original_fare'],
                 details=ref_tool_res,
-                reference_code=f"REF-{pnr_code}-SUCCESS"
+                reference_code=f"REF-{pnr_code}-{uuid.uuid4().hex[:6].upper()}"
             )
             resolutions_created.append(res)
         else:
@@ -475,7 +476,7 @@ def verification_and_resolution_node(state: ResolutionAgentState) -> Dict[str, A
                 action_type=ResolutionActionType.FREE_REBOOKING_24H,
                 status="PROCESSED",
                 details=rbk_tool_res,
-                reference_code=f"RBK-{pnr_code}-SUCCESS"
+                reference_code=f"RBK-{pnr_code}-{uuid.uuid4().hex[:6].upper()}"
             )
             resolutions_created.append(res)
     elif mapped_status == 'CANCELLED' and not intent_data.get('wants_refund') and not intent_data.get('wants_rebooking'):
@@ -504,7 +505,7 @@ def verification_and_resolution_node(state: ResolutionAgentState) -> Dict[str, A
                 status="PROCESSED",
                 amount=500.00,
                 details=meal_tool_res,
-                reference_code=f"VCH-{pnr_code}"
+                reference_code=f"VCH-{pnr_code}-{uuid.uuid4().hex[:6].upper()}"
             )
             resolutions_created.append(res)
 
@@ -520,7 +521,7 @@ def verification_and_resolution_node(state: ResolutionAgentState) -> Dict[str, A
                     action_type=ResolutionActionType.MEAL_VOUCHER_AND_LOUNGE,
                     status="PROCESSED",
                     details=lng_tool_res,
-                    reference_code=f"LNG-{pnr_code}"
+                    reference_code=f"LNG-{pnr_code}-{uuid.uuid4().hex[:6].upper()}"
                 )
                 resolutions_created.append(res)
 
@@ -536,7 +537,7 @@ def verification_and_resolution_node(state: ResolutionAgentState) -> Dict[str, A
                     action_type=ResolutionActionType.MEAL_AND_HOTEL_DELAYED_HOURS,
                     status="PROCESSED",
                     details=htl_tool_res,
-                    reference_code=f"HTL-{pnr_code}"
+                    reference_code=f"HTL-{pnr_code}-{uuid.uuid4().hex[:6].upper()}"
                 )
                 resolutions_created.append(res)
                 response_parts.append(

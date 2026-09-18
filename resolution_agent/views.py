@@ -77,18 +77,40 @@ class ChatAPIView(APIView):
         except Exception as exc:
             import logging
             logging.getLogger(__name__).exception("Workflow execution failed: %s", exc)
-            return Response({
-                'session_id': session_id,
-                'pnr': pnr,
-                'customer_name': None,
-                'response': "I apologize, but I am currently unable to access the airline reservation database. Please provide your booking reference (PNR) and full name, or try again in a few moments.",
-                'policy_action_type': 'SYSTEM_ERROR',
-                'conversation_status': 'ACTIVE',
-                'panel_summary': [{'label': 'System Notice', 'value': 'Database Service Disruption'}],
-                'resolutions': [],
-                'escalations': [],
-                'applied_rules': []
-            }, status=status.HTTP_200_OK)
+            err_str = str(exc).lower()
+            if 'no such table' in err_str or 'relation' in err_str:
+                try:
+                    from django.core.management import call_command
+                    call_command('migrate', interactive=False)
+                    call_command('seed_assignment_data')
+                    result_state = resolution_workflow.invoke(initial_state)
+                except Exception as retry_exc:
+                    logging.getLogger(__name__).exception("Retry after migration failed: %s", retry_exc)
+                    return Response({
+                        'session_id': session_id,
+                        'pnr': pnr,
+                        'customer_name': None,
+                        'response': "I apologize, but I am currently initializing the airline reservation system. Please try again in a few seconds.",
+                        'policy_action_type': 'SYSTEM_ERROR',
+                        'conversation_status': 'ACTIVE',
+                        'panel_summary': [{'label': 'System Notice', 'value': 'Database Initializing'}],
+                        'resolutions': [],
+                        'escalations': [],
+                        'applied_rules': []
+                    }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'session_id': session_id,
+                    'pnr': pnr,
+                    'customer_name': None,
+                    'response': "I apologize, but I am currently unable to access the airline reservation database. Please provide your booking reference (PNR) and full name, or try again in a few moments.",
+                    'policy_action_type': 'SYSTEM_ERROR',
+                    'conversation_status': 'ACTIVE',
+                    'panel_summary': [{'label': 'System Notice', 'value': 'Database Service Disruption'}],
+                    'resolutions': [],
+                    'escalations': [],
+                    'applied_rules': []
+                }, status=status.HTTP_200_OK)
 
         exec_res = result_state.get('execution_result', {})
         policy_res = result_state.get('policy_result')
@@ -200,9 +222,21 @@ class HealthCheckAPIView(APIView):
         try:
             from resolution_agent.models import Customer
             customer_count = Customer.objects.count()
+            if customer_count == 0:
+                from django.core.management import call_command
+                call_command('seed_assignment_data')
+                customer_count = Customer.objects.count()
         except Exception as e:
-            db_status = "error"
-            db_error = str(e)
+            # Auto-heal: apply migrations and seed if tables are missing
+            try:
+                from django.core.management import call_command
+                call_command('migrate', interactive=False)
+                call_command('seed_assignment_data')
+                from resolution_agent.models import Customer
+                customer_count = Customer.objects.count()
+            except Exception as migrate_err:
+                db_status = "error"
+                db_error = str(migrate_err)
 
         status_code = status.HTTP_200_OK if db_status == "ok" else status.HTTP_503_SERVICE_UNAVAILABLE
 

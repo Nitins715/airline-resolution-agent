@@ -72,7 +72,23 @@ class ChatAPIView(APIView):
             'pnr': pnr,
         }
 
-        result_state = resolution_workflow.invoke(initial_state)
+        try:
+            result_state = resolution_workflow.invoke(initial_state)
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).exception("Workflow execution failed: %s", exc)
+            return Response({
+                'session_id': session_id,
+                'pnr': pnr,
+                'customer_name': None,
+                'response': "I apologize, but I am currently unable to access the airline reservation database. Please provide your booking reference (PNR) and full name, or try again in a few moments.",
+                'policy_action_type': 'SYSTEM_ERROR',
+                'conversation_status': 'ACTIVE',
+                'panel_summary': [{'label': 'System Notice', 'value': 'Database Service Disruption'}],
+                'resolutions': [],
+                'escalations': [],
+                'applied_rules': []
+            }, status=status.HTTP_200_OK)
 
         exec_res = result_state.get('execution_result', {})
         policy_res = result_state.get('policy_result')
@@ -178,8 +194,25 @@ class ScenarioRunnerAPIView(APIView):
 class HealthCheckAPIView(APIView):
     """Health check endpoint for Render / service monitoring."""
     def get(self, request):
+        db_status = "ok"
+        db_error = None
+        customer_count = 0
+        try:
+            from resolution_agent.models import Customer
+            customer_count = Customer.objects.count()
+        except Exception as e:
+            db_status = "error"
+            db_error = str(e)
+
+        status_code = status.HTTP_200_OK if db_status == "ok" else status.HTTP_503_SERVICE_UNAVAILABLE
+
         return Response({
-            'status': 'healthy',
+            'status': 'healthy' if db_status == 'ok' else 'degraded',
+            'database': {
+                'status': db_status,
+                'customer_count': customer_count,
+                'error': db_error,
+            },
             'service': 'Customer-Facing Airline Disruption Resolution Agent',
             'simulated_date': '2026-09-23'
-        })
+        }, status=status_code)

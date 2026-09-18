@@ -240,19 +240,25 @@ async function sendMessage(messageText) {
             })
         });
 
-        const data = await response.json();
+        let data = null;
+        try {
+            data = await response.json();
+        } catch (jsonErr) {
+            console.warn('Response was not valid JSON:', jsonErr);
+        }
 
         // Remove typing indicator
         removeTypingIndicator(typingId);
 
-        if (response.ok) {
+        if (response.ok && data) {
             // Append Agent message bubble
             appendMessageBubble('agent', data.response, data.policy_action_type);
 
             // Update Resolution Details Panel
             updateResolutionPanel(data);
         } else {
-            appendMessageBubble('system', `Error: ${data.message || 'Unable to process request. Please try again.'}`);
+            const errorMsg = (data && (data.message || data.error)) || (response.status >= 500 ? 'Server is currently initializing or updating. Please try again in a few seconds.' : 'Unable to process request. Please try again.');
+            appendMessageBubble('system', `Error: ${errorMsg}`);
         }
     } catch (err) {
         removeTypingIndicator(typingId);

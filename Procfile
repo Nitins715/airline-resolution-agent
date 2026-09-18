@@ -1,1 +1,1 @@
-web: gunicorn airline_core.wsgi:application --log-file -
+web: bash ./start.sh

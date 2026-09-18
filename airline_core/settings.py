@@ -18,6 +18,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-airline-resolution-ag
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000'
+] + [h for h in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if h]
 
 # Application definition
 INSTALLED_APPS = [
@@ -125,5 +130,5 @@ REST_FRAMEWORK = {
 
 # Hugging Face & AI Settings
 HUGGINGFACEHUB_API_TOKEN = os.environ.get('HUGGINGFACEHUB_API_TOKEN', '')
-HF_MODEL_NAME = os.environ.get('HF_MODEL_NAME', 'mistralai/Mistral-7B-Instruct-v0.3')
+HF_MODEL_NAME = os.environ.get('HF_MODEL_NAME', 'Qwen/Qwen2.5-Coder-3B-Instruct')
 SIMULATED_EXERCISE_DATE = '2026-09-23'

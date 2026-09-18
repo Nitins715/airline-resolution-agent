@@ -22,4 +22,4 @@ services:
       - key: HUGGINGFACEHUB_API_TOKEN
         sync: false
       - key: HF_MODEL_NAME
-        value: "mistralai/Mistral-7B-Instruct-v0.3"
+        value: "Qwen/Qwen2.5-Coder-3B-Instruct"
